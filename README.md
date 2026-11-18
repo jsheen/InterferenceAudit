@@ -62,6 +62,8 @@ Results go to `runs/<timestamp>/` (each stage, plus `report.md` with all five). 
 
 ## Example: The New York Times
 
+Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and everything is combined in [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
+
 ### Raw free text
 
 As originally written (`inputs/nyt_original.txt`). The last two paragraphs were added afterward. The three outcomes (engagement, revenue, retention) came from the task description.
