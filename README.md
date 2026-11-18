@@ -66,7 +66,7 @@ Results go to `runs/<timestamp>/` (each stage, plus `report.md` with all five). 
 If you already have a prototype idea, put it in a text or Markdown file and pass it with `--ideas`. It skips Agent 3 and goes straight to Agent 4, which critiques it alongside Agent 3's cards, then to Agent 5, which writes the full plan.
 
 ```bash
-.venv/bin/python -m interference_audit.pipeline inputs/nyt.md --ideas inputs/nyt_idea_november18.md
+.venv/bin/python -m interference_audit.pipeline inputs/nyt.md --ideas inputs/nyt_idea_111826.md
 ```
 
 To try an idea without rerunning the research, start a new run directory, copy `01_interference.md`, `02_research.md` and `03_cards.md` from an earlier run into it, and pass `--run-dir`. Only Agents 4 and 5 will run, which takes about 8-10 minutes.
@@ -76,7 +76,7 @@ To try an idea without rerunning the research, start a new run directory, copy `
 
 Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and everything is combined in [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
 
-A second run fed the user idea in [`inputs/nyt_idea_november18.md`](inputs/nyt_idea_november18.md) (fill the empty seats on Family All Access plans with 2 or 3 members) directly to Agents 4 and 5, reusing the first run's Agents 1-3: [`examples/nyt_idea_november18/`](examples/nyt_idea_november18/). Its plan for the idea is Plan 3 in [`05_plans.md`](examples/nyt_idea_november18/05_plans.md). Agents 4 and 5 took 2 min 54 s and about 8 min. Both examples predate Agent 1 reading the company's help center, so their Agents 1-3 still say any member can invite; Agent 4 corrects this.
+A second run fed the user idea in [`inputs/nyt_idea_111826.md`](inputs/nyt_idea_111826.md) (fill the empty seats on Family All Access plans with 2 or 3 members) directly to Agents 4 and 5, reusing the first run's Agents 1-3: [`examples/nyt_idea_111826/`](examples/nyt_idea_111826/). Its plan for the idea is Plan 3 in [`05_plans.md`](examples/nyt_idea_111826/05_plans.md). Agents 4 and 5 took 2 min 54 s and about 8 min. Both examples predate Agent 1 reading the company's help center, so their Agents 1-3 still say any member can invite; Agent 4 corrects this.
 
 ### Run time
 
