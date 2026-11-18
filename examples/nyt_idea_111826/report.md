@@ -2,73 +2,110 @@
 
 Model: `claude-opus-5-5`. Input: [`00_input.md`](00_input.md) · Your ideas: [`00_ideas.md`](00_ideas.md)
 
-## Bottom line
+## Plan 1: Plan-coordinated Games Family → All Access Family upgrade
 
-- **Build Plan 1 first**: the plan-coordinated Games Family → All Access Family upgrade (P1 + P3, with P7 as an audit arm). It scored highest (4.25). It also builds the shared data foundation and the member → owner request flow that Plan 3 reuses. Only the plan owner can buy (verified, Help Center), so a request button is the only in-product route from member demand to a purchase.
-- **Run Plan 2** (plan retention) in parallel on its own layer. **Start Plan 3** (filling empty seats) once the invitee-status classifier is validated.
-- **Biggest caveat:** NYT does not disclose how many family plans it has, so no design can yet be checked for power. Also **unverified**: whether owners get the $8 intro price when they upgrade. That decides the sign of year-1 revenue per upgrading plan: −$26 if they do, +$312 if not (assumptions).
+**Idea:** Test whether nudging the whole Games Family plan in the same week produces more upgrades to All Access Family than nudging the owner alone, after controlling for message volume. Members also get a one-tap way to ask the owner.
 
-## By outcome
+**Outcomes promoted:** Revenue (primary: plan upgraded within 8 weeks), engagement on newly unlocked products, and retention as a guardrail (plan cancellation hazard).
 
-### Engagement
-- **Mechanisms on the plan:**
-  - Plan 2: a synchronized weekly leaderboard challenge sent to every seat, plus idle-seat nudges (push, then email, then in-app).
-  - Plan 1: member in-app cards and consented push or email, which drive use of newly unlocked products.
-  - Plan 3: owner nudges that add seats, measured as total cluster engagement.
-- **Why the plan beats individuals:** the shared leaderboard makes play complementary across seats. A seat-randomized test **understates** the effect, because control seats see treated rivals.
-- **Primary or not:** no plan has engagement as its primary outcome. Plan 2 uses active seats per plan per week as a pre-registered leading surrogate. That metric is well powered: about 7,900 plans in the factorial (assumptions). In Plans 1 and 3 engagement is secondary.
+**Mechanism:**
+- Owners get email, in-app and push upsells.
+- Members get an in-app card, plus push or email only with their own consent.
+- Members of treated plans see a "Request All Access for our plan" paywall button. It sends the owner a weekly digest containing only a count of requests.
+- Cluster: plan_id, frozen at entry.
 
-### Retention
-- **Mechanisms on the plan:** Plan 2's challenge and idle-seat push, and Plan 3's owner email and in-app "open seats" nudges.
-- **Why the plan beats individuals:** churn is a plan event that the owner decides, so per-member retention is mis-specified.
-- **Primary or not:** primary in Plans 2 and 3; a guardrail in Plan 1.
-- **Measurability:**
-  - Plan 2 needs about 39,400 eligible plans for a 24-week readout. This assumes 2% churn per 4 weeks and a hazard ratio of 0.90.
-  - Plan 3 needs about 439,000 plans, which is likely more than exist (inference). Its result will be an estimate, not a test.
-  - Cotton's "much less likely to cancel" is a belief, not data.
+**Why cluster-level:** Only the owner can buy, but members hold much of the demand. Member-level randomization would understate the effect, because control seats also get access when the plan upgrades.
 
-### Revenue
-- **Mechanisms on the plan (Plan 1):**
-  - Owner upsell by email and in-app, plus a dose-matched arm using push.
-  - Member cards.
-  - A count-only "Request All Access for our plan" button on member paywalls.
-  - Offer prices are held fixed across arms.
-- **Why the plan beats individuals:** the owner pays, but members hold the demand. A member-randomized test **understates** the effect, because control seats share the upgrade.
-- **Primary or not:**
-  - Plan 1: upgrade within 8 weeks is the primary outcome.
-  - Plan 3: net revenue (invitee cannibalization netted out) is co-primary for the decision. It breaks even only if fewer than about 3.1% of fills come from people who already pay (assumptions).
-  - Plan 2: churn-driven revenue is secondary.
-- **Measurability (Plan 1):** about 110k plans for 5 arms, or about 62k for 3 arms, at δ = 0.5pp. At δ = 1pp, about 18.5k–32.9k. The coordination contrast (C vs A′) is the weakest-powered question, at 15,333 plans per arm.
+**Design:**
+- Arms: control, owner-only, owner-only with the same number of messages as the coordinated arm, request button only, and coordinated all-seat treatment.
+- A separate half of plans is randomized seat by seat. This measures how much a standard user-level test would understate the effect.
+- Analysis is at the plan level, with Holm adjustment across contrasts.
 
-**Levers no selected plan uses:** home-page recommendations, and personalized paywall *pricing*.
+**Size needed:** Inputs are assumptions (1.0% baseline, +0.5pp).
+- 5 arms: about 110k eligible plans. 3 arms: about 62k.
+- At +1pp: about 32.9k (5 arms) or 18.5k (3 arms).
+- The coordination contrast needs about 15.3k plans per arm and is the weakest-powered question.
+- The plan count is undisclosed. Below 19k plans the plan says to run only a directional pilot.
 
-## Selected plans
+**Caveats:**
+- Prices are unverified ($34 vs $30; current Games Family price).
+- Intro-price eligibility is unverified. If owners get the $8 intro, an upgrade means −$26 in year 1.
+- Member paywall-hit volume is unknown.
+- Members may not be able to see who the owner is.
+- Plan_id may not persist through an upgrade.
+- The digest may legally count as marketing mail.
 
-| Plan | Primary outcome | Lever(s) | Cluster | Size needed | Key risk |
-|---|---|---|---|---|---|
-| 1. Coordinated upgrade (P1+P3+P7) | Upgrade within 8 wk (revenue) | Owner email, in-app, push; member cards; paywall request button | Games Family plan_id | ≈110k (5-arm) / ≈62k (3-arm); ≈18.5k at δ = 1pp | Plan count unknown; intro-price anomaly |
-| 2. Plan challenge + idle seats (P4) | Plan cancellation hazard | Push, email, in-app | Games Family and All Access Family plan_id | ≈39.4k (24 wk) / ≈76.5k (12 wk) | Retention ceiling; push fatigue |
-| 3. Fill empty seats (U1+P6) | Plan cancellation; net revenue for the decision | Owner email, in-app, share link; optional member card | All Access Family plan + invitees (ego cluster) | Fills: ≈1.4k/arm; cancellation: ≈439k | Cannibalization; third-party blind spot |
+## Plan 2: Plan challenge and idle-seat reactivation
 
-## Ranking
+**Idea:** Reduce whole-plan cancellation with two levers: a synchronized weekly leaderboard challenge sent to every seat, and nudges to seats that have gone idle.
 
-- P1: 4.25, kept (absorbs P3 and P7) → Plan 1
-- P4: 3.80, kept → Plan 2
-- **U1 (user idea): 3.55, kept, merged with P6** → Plan 3
-- P6: 3.35, merged into U1
-- P3: 3.25, merged into P1
-- P7: 3.20, merged as audit arms
-- P2: 3.05, parked
-- P8: 2.40, dropped (wrong cluster, too few DMAs)
-- P5: 2.35, dropped (privacy risk, negative revenue sign)
+**Outcomes promoted:** Retention (primary: plan cancellation hazard), engagement (leading metric: active seats per plan per week), and revenue (churn-driven only).
 
-## Before building
+**Mechanism:**
+- Monday challenge push and Sunday recap to all seats.
+- Idle-seat nudge after 14 days without activity, sent by push, then email, then in-app, subject to each member's consent and frequency caps.
+- Applies to Games Family and All Access Family plans.
+- Cluster: plan_id.
 
-1. **Plan counts** by type and seat count. These set the arm counts, the layer split, and whether any churn-primary design is feasible.
-2. **Prices and eligibility.** Is All Access Family $34 (**unverified**) or $30? What are the current Games Family price and billing period? Do owners get the intro price on upgrade?
-3. **NYT's current randomization unit.** If tests are already plan-hashed, the audit arms teach less.
-4. **Consent and legal status.** Do member email and push need separate consent? Are request digests and invitation emails transactional or marketing?
-5. **Lineage.** Does plan_id persist through an upgrade? Is invite → redemption logged? Can Apple and Google subscriptions be linked to accounts?
+**Why cluster-level:** The shared leaderboard makes play complementary across seats, and cancellation is a plan event. Seat-level tests understate the effect, and measuring retention per member is mis-specified.
+
+**Design:**
+- 2×2 factorial: challenge yes/no × idle nudge yes/no.
+- A 20% audit share randomized by seat.
+- Cox model for cancellation; CUPED-adjusted active seats.
+- Engagement is pre-registered as a surrogate for churn, with a plan to validate it.
+
+**Size needed:** Inputs are assumptions (2% 4-week churn, HR 0.90).
+- About 76.5k plans with 12-week follow-up, or about 39.4k with 24 weeks.
+- The interaction needs about 245k plans and is exploratory only.
+- The leading metric needs about 7.9k plans.
+- The plan says the primary outcome may be unpowered if baseline churn is far below 2%. Below 8k plans, it compares the full treatment with control only.
+
+**Caveats:**
+- The high-retention baseline is an executive belief, not data.
+- Push fatigue.
+- Non-gamers on All Access Family plans may ignore the challenge.
+- Unverified: leaderboard contents and whether it links plans, push opt-in rates, plan counts.
+
+## Plan 3: Fill the empty seats on All Access Family plans
+
+*From the user's idea, merged with P6.*
+
+**Idea:** Nudge owners of 2–3-person All Access Family plans to fill their open seats, preferably with people who don't already pay. Every invitee's outcome is credited to the owner's arm.
+
+**Outcomes promoted:**
+- Retention is the primary outcome (plan cancellation hazard).
+- Revenue is co-primary for the decision (net revenue per cluster).
+- Engagement is secondary (seats with access, cluster engagement).
+
+**Mechanism:**
+- All messaging goes to owners, since only the owner can invite: email, an in-app card, and a reminder.
+- Optional wave-2 arm: members get an in-app "suggest someone" card that reuses Plan 1's digest.
+- Randomized by plan_id. The analysis cluster is the plan plus everyone who joins it.
+
+**Why cluster-level:** The owner is treated, but outcomes land on invitees and on the plan. Owner-only accounting overstates net revenue (invitees may cancel their own subscriptions) and understates engagement.
+
+**Design:**
+- Wave 1: control, a generic "open seats" nudge, and a "for someone without NYT" framing with a share link.
+- Each invitee is classified by prior status (paying, free, lapsed, unknown).
+- Net revenue is reported with bounds for invitees whose status can't be seen.
+
+**Size needed:**
+- Seats filled: about 1.4k plans per arm.
+- Cannibalization, framing vs generic: about 5.2k per arm.
+- Cancellation: about 439k plans, "almost certainly more than exist". The plan states this outcome is honestly underpowered.
+- Break-even (assumption-based): fewer than about 3.1% of fills can come from paying individuals.
+
+**Caveats:**
+- Revenue sign is likely negative.
+- Third-party billing is a blind spot.
+- Invite links may leak publicly.
+- Invitees may leave other family plans to join.
+- Cotton's retention claim is a belief.
+- Unverified: $34 price, invite lineage, whether invite links are single-use.
+
+---
+**Not planned:** P2 (parked); P5, P8 and P6's hold/compare screen (dropped); P3 and P7 (merged into Plan 1); P6 (merged into Plan 3).
 
 ---
 

@@ -184,25 +184,28 @@ For each plan give:
 SUMMARY = """\
 You write the short summary that opens an interference-audit report. The input holds the
 company description and the full outputs of five agents: an interference map, research, idea
-cards, a critique that ranked and selected prototypes, and full plans for the selected ones.
+cards, a critique that selected prototypes, and full plans for the selected ones.
 
-Use ONLY what is in those outputs. Add no new facts, numbers, or citations. Keep every
-"unverified" or "assumption" label that the agents attached to a number. Write in Markdown,
-at most about 700 words, with no preamble.
+Your job is to SUMMARIZE each plan in Agent 5's output, not to judge them. Do not recommend
+what to build, do not rank or compare the plans, and do not add a "bottom line". Present the
+plans in the order Agent 5 wrote them.
 
-Structure:
-1. **Bottom line** (2-4 bullets): what to build first and why, and the single biggest caveat.
-2. **By outcome.** One subsection each for ENGAGEMENT, RETENTION, and REVENUE. In each:
-   - Which mechanisms (the company's levers, e.g. email, in-app, push, recommendations,
-     paywall) the selected plans use to promote this outcome, and on which cluster (plan,
-     household, ...) rather than on individuals.
-   - Why treating the cluster should beat treating individuals for this outcome.
-   - Which plan(s) target it as a primary outcome vs. a secondary or guardrail, and whether
-     it is realistically measurable (from the plans' power sections).
-   If no selected plan promotes an outcome, say so plainly.
-3. **Selected plans**: a table with columns Plan | Primary outcome | Lever(s) | Cluster |
-   Size needed (from the power section) | Key risk.
-4. **Ranking**: one line per idea from the critique's scores (name, score, kept / merged /
-   dropped). Mark user-proposed ideas (U1, U2, ...).
-5. **Before building**: the 3-5 most important open questions.
+Use ONLY what is in the outputs. Add no new facts, numbers, or citations. Keep every
+"unverified" or "assumption" label the agents attached to a number. Write in Markdown, about
+200-250 words per plan, with no preamble.
+
+For each plan, a section headed "## Plan <n>: <title>" with:
+- **Idea:** one or two sentences.
+- **Outcomes promoted:** which of engagement, retention, and revenue it promotes, and which
+  one is its primary outcome.
+- **Mechanism:** the levers it uses (e.g. email, in-app, push, recommendations, paywall), who
+  receives them, and the cluster that is treated or randomized.
+- **Why cluster-level:** why treating the cluster should beat treating individuals here.
+- **Design:** the arms and how the effect is measured, in plain terms.
+- **Size needed:** from the plan's power section, and whether the plan says it is realistic.
+- **Caveats:** the main risks and the unverified facts it depends on.
+
+If the input contains <user_ideas>, note under the relevant plan that it came from the user's
+idea. End with one line listing ideas that were not planned (dropped, parked or merged), with
+no commentary.
 """

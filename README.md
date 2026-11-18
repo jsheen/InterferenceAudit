@@ -15,7 +15,7 @@ Five agents run in sequence on `claude-opus-5-5` (medium effort), each seeing th
 | 3. Idea generator | none | Writes 6-10 short prototype cards (cluster-level treatments or measurement designs) | `03_cards.md` |
 | 4. Critic and selector | up to 8 | Spot-checks facts and citations, critiques and scores each card, ranks them, and picks the top 2-3 with a brief for each | `04_critique.md` |
 | 5. Plan writer | none | Full plans for the picks only: arms, cluster, design, estimands, metrics, power math shown step by step, build plan, decision rule | `05_plans.md` |
-| Summary | none | About 1,000 words by outcome (engagement, retention, revenue): which levers, on which cluster, and whether it is measurable; plus the plan table, ranking, and open questions | `report.md` |
+| Summary | none | Summarizes each planned prototype without ranking or recommending: the idea, which outcomes it promotes (engagement, retention, revenue), levers and cluster, why cluster-level, design, size needed, caveats | `report.md` |
 
 ## Usage
 
