@@ -15,3 +15,6 @@ Engagement, revenue, and retention.
 - Better algorithmic recommendations on the home page
 - Push notifications
 - Personalized paywall
+
+## Example of the kind of opportunity we're looking for
+Nudging a Family Games plan (up to 4 members) to upgrade to Family All Access. The point is that the treatment is applied at the cluster level: the whole plan is treated together, rather than nudging members one at a time, since the upgrade decision and its payoff are shared across the plan.

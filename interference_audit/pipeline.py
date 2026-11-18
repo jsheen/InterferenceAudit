@@ -29,6 +29,7 @@ from . import prompts
 
 MODEL = "claude-opus-5-5"
 MAX_TOKENS = 64000
+EFFORT = "medium"  # low | medium | high | xhigh | max
 MAX_CONTINUATIONS = 10  # resumes after pause_turn (long server-tool turns)
 
 
@@ -41,10 +42,10 @@ class Stage:
 
 
 STAGES = [
-    Stage("01_interference", "Agent 1: Interference map", prompts.AGENT1_INTERFERENCE, 10),
-    Stage("02_research", "Agent 2: Industry and literature research", prompts.AGENT2_RESEARCH, 30),
+    Stage("01_interference", "Agent 1: Interference map", prompts.AGENT1_INTERFERENCE, 6),
+    Stage("02_research", "Agent 2: Industry and literature research", prompts.AGENT2_RESEARCH, 15),
     Stage("03_prototypes", "Agent 3: Prototypes", prompts.AGENT3_PROTOTYPES, 0),
-    Stage("04_critique", "Agent 4: Critique and ranking", prompts.AGENT4_CRITIC, 15),
+    Stage("04_critique", "Agent 4: Critique and ranking", prompts.AGENT4_CRITIC, 8),
 ]
 
 
@@ -71,7 +72,7 @@ def run_agent(client: anthropic.Anthropic, stage: Stage, user_content: str) -> t
             messages=messages,
             tools=web_tools(stage.web_searches),
             thinking={"type": "adaptive"},
-            output_config={"effort": "high"},
+            output_config={"effort": EFFORT},
             # Re-run on a fallback model if a safety classifier declines the request.
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
@@ -109,7 +110,7 @@ def run_agent_claude_code(stage: Stage, user_content: str) -> tuple[str, list[tu
     cmd = [
         "claude", "-p",
         "--model", MODEL,
-        "--effort", "high",
+        "--effort", EFFORT,
         "--system-prompt", stage.system,
         "--tools", tools,
         "--output-format", "json",
@@ -129,11 +130,15 @@ def run_agent_claude_code(stage: Stage, user_content: str) -> tuple[str, list[tu
     return (data.get("result") or "").strip(), []
 
 
-def build_input(description: str, prior: dict[str, str]) -> str:
+def build_input(stage: Stage, description: str, prior: dict[str, str]) -> str:
     parts = [f"<company_description>\n{description.strip()}\n</company_description>"]
-    for stage in STAGES:
-        if stage.key in prior:
-            parts.append(f'<stage name="{stage.title}">\n{prior[stage.key]}\n</stage>')
+    for earlier in STAGES:
+        if earlier.key in prior:
+            parts.append(f'<stage name="{earlier.title}">\n{prior[earlier.key]}\n</stage>')
+    if stage.web_searches > 0:
+        # The API backend enforces this with max_uses; Claude Code has no cap flag, so state it.
+        parts.append(f"Budget: use at most {stage.web_searches} web searches and {stage.web_searches} page fetches. "
+                     "Prioritize the highest-value lookups.")
     parts.append(f"Today's date is {dt.date.today().isoformat()}. Do your stage now.")
     return "\n\n".join(parts)
 
@@ -171,7 +176,7 @@ def main() -> None:
             outputs[stage.key] = out_path.read_text()
             continue
         print(f"[run]  {stage.title}", file=sys.stderr)
-        prompt = build_input(description, outputs)
+        prompt = build_input(stage, description, outputs)
         if backend == "api":
             text, sources = run_agent(client, stage, prompt)
         else:
