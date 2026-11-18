@@ -1,10 +1,11 @@
-"""Four-agent interference-audit workflow on the Claude API.
+"""Five-agent interference-audit workflow.
 
-Stages (each one is a Claude call with web search; outputs are saved as Markdown):
-  1. interference  - map units, levers, and interference channels; verify prices
-  2. research      - industry precedent and causal-inference literature per channel
-  3. prototypes    - cluster-level treatment / design prototypes
-  4. critique      - critique, citation spot-check, and ranking
+Stages (each one is a Claude call; outputs are saved as Markdown):
+  1. interference  - map units, levers, and interference channels; verify prices (web)
+  2. research      - industry precedent and causal-inference literature per channel (web)
+  3. cards         - short prototype idea cards
+  4. critique      - fact/citation spot-check, critique, ranking, and selection of 2-3 winners (web)
+  5. plans         - full experiment plans for the selected prototypes only
 
 Usage:
   python -m interference_audit.pipeline inputs/nyt.md
@@ -44,8 +45,9 @@ class Stage:
 STAGES = [
     Stage("01_interference", "Agent 1: Interference map", prompts.AGENT1_INTERFERENCE, 6),
     Stage("02_research", "Agent 2: Industry and literature research", prompts.AGENT2_RESEARCH, 15),
-    Stage("03_prototypes", "Agent 3: Prototypes", prompts.AGENT3_PROTOTYPES, 0),
-    Stage("04_critique", "Agent 4: Critique and ranking", prompts.AGENT4_CRITIC, 8),
+    Stage("03_cards", "Agent 3: Prototype idea cards", prompts.AGENT3_PROTOTYPES, 0),
+    Stage("04_critique", "Agent 4: Critique, ranking, and selection", prompts.AGENT4_CRITIC, 8),
+    Stage("05_plans", "Agent 5: Full plans for the selected prototypes", prompts.AGENT5_PLANS, 0),
 ]
 
 
