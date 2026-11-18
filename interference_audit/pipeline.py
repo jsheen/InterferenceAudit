@@ -6,6 +6,7 @@ Stages (each one is a Claude call; outputs are saved as Markdown):
   3. cards         - short prototype idea cards
   4. critique      - fact/citation spot-check, critique, ranking, and selection of 2-3 winners (web)
   5. plans         - full experiment plans for the selected prototypes only
+  then a short summary by outcome (engagement, retention, revenue) -> report.md
 
 Usage:
   python -m interference_audit.pipeline inputs/nyt.md
@@ -50,6 +51,7 @@ STAGES = [
     Stage("04_critique", "Agent 4: Critique, ranking, and selection", prompts.AGENT4_CRITIC, 8),
     Stage("05_plans", "Agent 5: Full plans for the selected prototypes", prompts.AGENT5_PLANS, 0),
 ]
+SUMMARY_STAGE = Stage("06_summary", "Summary", prompts.SUMMARY, 0)
 
 
 def web_tools(max_searches: int) -> list[dict]:
@@ -133,7 +135,7 @@ def run_agent_claude_code(stage: Stage, user_content: str) -> tuple[str, list[tu
     return (data.get("result") or "").strip(), []
 
 
-IDEA_STAGES = ("04_critique", "05_plans")  # user ideas skip the idea generator and go straight to these
+IDEA_STAGES = ("04_critique", "05_plans", "06_summary")  # user ideas skip the idea generator and go straight to these
 
 
 def build_input(stage: Stage, description: str, prior: dict[str, str], ideas: str | None = None) -> str:
@@ -149,6 +151,30 @@ def build_input(stage: Stage, description: str, prior: dict[str, str], ideas: st
                      "Prioritize the highest-value lookups.")
     parts.append(f"Today's date is {dt.date.today().isoformat()}. Do your stage now.")
     return "\n\n".join(parts)
+
+
+def recorded_or_new(recorded: Path, given: Path | None) -> str | None:
+    """Return the run directory's recorded copy of an input if it has one, else the given file (recorded)."""
+    if recorded.exists():
+        text = recorded.read_text()
+        if given and given.read_text() != text:
+            print(f"  note: using {recorded} recorded at the start of this run, not the current {given}", file=sys.stderr)
+        return text
+    if given is None:
+        return None
+    text = given.read_text()
+    recorded.write_text(text)
+    return text
+
+
+def build_report(summary: str, ideas: str | None) -> str:
+    parts = [f"# Interference audit: summary\n\nModel: `{MODEL}`. Input: [`00_input.md`](00_input.md)"]
+    if ideas:
+        parts[0] += " · Your ideas: [`00_ideas.md`](00_ideas.md)"
+    parts.append(summary.strip())
+    links = "\n".join(f"- [{s.title}]({s.key}.md)" for s in STAGES)
+    parts.append(f"---\n\n## Full outputs\n\n{links}")
+    return "\n\n".join(parts) + "\n"
 
 
 def main() -> None:
@@ -171,13 +197,11 @@ def main() -> None:
         sys.exit("Claude Code CLI (`claude`) not found on PATH; install it or use --backend api.")
     print(f"Backend: {backend}", file=sys.stderr)
 
-    description = args.description.read_text()
     run_dir = args.run_dir or Path("runs") / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     run_dir.mkdir(parents=True, exist_ok=True)
-    (run_dir / "00_input.md").write_text(description)
-    ideas = args.ideas.read_text() if args.ideas else None
-    if ideas:
-        (run_dir / "00_ideas.md").write_text(ideas)
+    # On resume, keep using the inputs the run started with, so all stages see the same thing.
+    description = recorded_or_new(run_dir / "00_input.md", args.description)
+    ideas = recorded_or_new(run_dir / "00_ideas.md", args.ideas)
 
     client = anthropic.Anthropic() if backend == "api" else None
     outputs: dict[str, str] = {}
@@ -199,11 +223,18 @@ def main() -> None:
         out_path.write_text(text)
         outputs[stage.key] = text
 
-    report = [f"# Interference audit\n\nInput: `{args.description}`  \nModel: `{MODEL}`\n"]
-    if ideas:
-        report.append(f"\n\n# User ideas (fed to Agents 4 and 5)\n\n{ideas.strip()}")
-    report += [f"\n\n# {s.title}\n\n{outputs[s.key]}" for s in STAGES]
-    (run_dir / "report.md").write_text("".join(report))
+    summary_path = run_dir / f"{SUMMARY_STAGE.key}.md"
+    if summary_path.exists():
+        summary = summary_path.read_text()
+    else:
+        print(f"[run]  {SUMMARY_STAGE.title}", file=sys.stderr)
+        prompt = build_input(SUMMARY_STAGE, description, outputs, ideas)
+        if backend == "api":
+            summary, _ = run_agent(client, SUMMARY_STAGE, prompt)
+        else:
+            summary, _ = run_agent_claude_code(SUMMARY_STAGE, prompt)
+        summary_path.write_text(summary)
+    (run_dir / "report.md").write_text(build_report(summary, ideas))
     print(f"Done. Report: {run_dir / 'report.md'}", file=sys.stderr)
 
 

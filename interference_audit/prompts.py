@@ -180,3 +180,29 @@ For each plan give:
 - Decision rule: what result leads to rollout, iteration, or stopping
 - Risks, and the unverified facts that must be checked before launch
 """
+
+SUMMARY = """\
+You write the short summary that opens an interference-audit report. The input holds the
+company description and the full outputs of five agents: an interference map, research, idea
+cards, a critique that ranked and selected prototypes, and full plans for the selected ones.
+
+Use ONLY what is in those outputs. Add no new facts, numbers, or citations. Keep every
+"unverified" or "assumption" label that the agents attached to a number. Write in Markdown,
+at most about 700 words, with no preamble.
+
+Structure:
+1. **Bottom line** (2-4 bullets): what to build first and why, and the single biggest caveat.
+2. **By outcome.** One subsection each for ENGAGEMENT, RETENTION, and REVENUE. In each:
+   - Which mechanisms (the company's levers, e.g. email, in-app, push, recommendations,
+     paywall) the selected plans use to promote this outcome, and on which cluster (plan,
+     household, ...) rather than on individuals.
+   - Why treating the cluster should beat treating individuals for this outcome.
+   - Which plan(s) target it as a primary outcome vs. a secondary or guardrail, and whether
+     it is realistically measurable (from the plans' power sections).
+   If no selected plan promotes an outcome, say so plainly.
+3. **Selected plans**: a table with columns Plan | Primary outcome | Lever(s) | Cluster |
+   Size needed (from the power section) | Key risk.
+4. **Ranking**: one line per idea from the critique's scores (name, score, kept / merged /
+   dropped). Mark user-proposed ideas (U1, U2, ...).
+5. **Before building**: the 3-5 most important open questions.
+"""

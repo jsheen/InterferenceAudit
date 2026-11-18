@@ -42,6 +42,9 @@ Five agents run in sequence. Each one sees the original description and the outp
   - a decision rule
   - risks
 
+### Summary (no web)
+- After Agent 5, a short summary step writes `report.md` (about 1,000 words) from the agents' outputs, adding no new facts. It is organized by outcome: for engagement, retention and revenue, which levers the selected plans use, on which cluster, why treating the cluster beats treating individuals, and whether the effect is realistically measurable. It then gives a table of the selected plans, the ranking of every idea, and the open questions, with links to each agent's full output. It takes under a minute.
+
 | Agent | Output file |
 |---|---|
 | 1 | `01_interference.md` |
@@ -49,6 +52,7 @@ Five agents run in sequence. Each one sees the original description and the outp
 | 3 | `03_cards.md` |
 | 4 | `04_critique.md` |
 | 5 | `05_plans.md` |
+| Summary | `06_summary.md`, and `report.md` (summary plus links) |
 
 ## Usage
 
@@ -59,7 +63,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 By default it runs each agent through Claude Code (`claude -p`), which uses your Claude subscription. If `ANTHROPIC_API_KEY` is set, it calls the Anthropic API directly instead (billed per token). Use `--backend claude-code` or `--backend api` to choose explicitly.
 
-Results go to `runs/<timestamp>/` (each stage, plus `report.md` with all five). If a run stops partway, pass `--run-dir runs/<timestamp>` to resume. Stages that already finished are skipped, and you can delete a stage's file to rerun only that stage. Prompts are in `interference_audit/prompts.py`.
+Results go to `runs/<timestamp>/`: each agent's output, plus `report.md`, the short summary to read first. If a run stops partway, pass `--run-dir runs/<timestamp>` to resume. Stages that already finished are skipped, and you can delete a stage's file to rerun only that stage. A resumed run keeps using the input (and ideas) recorded in its directory as `00_input.md` (and `00_ideas.md`), so every stage sees the same input. Prompts are in `interference_audit/prompts.py`.
 
 ### Feeding your own ideas directly into Agent 4
 
@@ -74,7 +78,7 @@ To try an idea without rerunning the research, start a new run directory, copy `
 
 ## Example: The New York Times
 
-Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and everything is combined in [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
+Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and the short summary is [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
 
 A second run fed the user idea in [`inputs/nyt_idea_111826.md`](inputs/nyt_idea_111826.md) (fill the empty seats on Family All Access plans with 2 or 3 members) directly to Agents 4 and 5, reusing the first run's Agents 1-3: [`examples/nyt_idea_111826/`](examples/nyt_idea_111826/). Its plan for the idea is Plan 3 in [`05_plans.md`](examples/nyt_idea_111826/05_plans.md). Agents 4 and 5 took 2 min 54 s and about 8 min. Both examples predate Agent 1 reading the company's help center, so their Agents 1-3 still say any member can invite; Agent 4 corrects this.
 
