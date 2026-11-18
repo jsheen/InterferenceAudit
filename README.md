@@ -2,6 +2,19 @@
 
 Companies using individual level data may not know areas where there may be interference, where treatments applied at the individual level will have better gains when applied at cluster level. Given free text description of the output metrics, mechanisms we have to optimize these metrics, and company subscription plans, this agentic workflow will identify and rank the best possible prototypes to build. A human in the loop is still needed in order to verify the output, maintaining proper skepticism since AI will still suggest things that don't make sense either for a production system, or even methodologically (it will frequently admit that it made something up). There is still no Lean certification for whether something "makes sense in production" (see "unverifiable tasks" by Arvind Narayanan).
 
+## When to run it
+
+It is designed for two cases:
+
+- **A user wants to test an idea.** Pass it with `--ideas`. Agents 4 and 5 critique it, score it alongside the generated cards, and write a full plan for it unless it is unsound. Reusing the research from an earlier run, this takes about 8-10 minutes.
+- **Automatically, whenever there is a new mechanism or product.** A new plan, a price change, or a new lever (such as a new notification type) can create new interference. A full run maps the new interference channels and searches for how other companies and the causal inference literature handle them. It takes about 16 minutes.
+
+## Time and cost
+
+- **Full run:** about 16 minutes on `claude-opus-5-5` at medium effort (per-agent times are under the NYT example below).
+- **Idea only (`--ideas`, research reused):** about 8-10 minutes.
+- **Cost:** the example runs used a Claude subscription through Claude Code, so there was no separate per-run charge. The per-token cost on the Anthropic API was not recorded.
+
 Subsequently, a minimum viable product can then be built quickly with an agent.
 
 ## Workflow
