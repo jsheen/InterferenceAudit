@@ -64,6 +64,21 @@ Results go to `runs/<timestamp>/` (each stage, plus `report.md` with all five). 
 
 Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and everything is combined in [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
 
+### Run time
+
+Measured on the NYT example, running on a Claude subscription via Claude Code, at medium effort with the search caps above:
+
+| Agent | Time | Model turns |
+|---|---|---|
+| 1. Interference mapper | 2 min 58 s | 12 |
+| 2. Researcher | 3 min 41 s | 31 |
+| 3. Idea generator (cards) | 1 min 7 s | 1 |
+| 4. Critic and selector | 3 min 8 s | 13 |
+| 5. Plan writer | 5 min 10 s | 1 |
+| **Total** | **about 16 min** | |
+
+Agents 1-2 ran in one session and Agents 3-5 in a second, which reused Agents 1-2's output since their prompts had not changed. The total is the sum of the five agents; the script's own overhead between agents was a few seconds. Agent 5 is the slowest because it writes the most. Times will vary with the input and with load.
+
 ### Raw free text
 
 As originally written (`inputs/nyt_original.txt`). The last two paragraphs were added afterward. The three outcomes (engagement, revenue, retention) came from the task description.
