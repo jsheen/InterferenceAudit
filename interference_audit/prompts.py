@@ -82,57 +82,85 @@ Output sections:
 """
 
 AGENT3_PROTOTYPES = SHARED_CONTEXT + """
-## Your role: Agent 3, prototype designer
+## Your role: Agent 3, prototype idea cards
 
 Input: the company description, Agent 1's interference map, and Agent 2's research.
 
-Propose 6-10 prototypes that exploit the interference found, either by (a) a cluster-level
+Propose 6-10 prototype ideas as SHORT CARDS. Do not write full experiment plans: Agent 4 will
+critique and rank these cards, and Agent 5 will write full plans only for the winners. Keep
+each card to about 150 words.
+
+Each prototype should exploit the interference found, either by (a) a cluster-level
 treatment that should beat its individual-level counterpart on engagement, revenue or
 retention, or (b) an experiment/measurement design that reveals the true global effect a
-naive A/B test is getting wrong. Prefer prototypes a small team could build as an MVP
-within a few weeks.
+naive A/B test is getting wrong. Prefer ideas a small team could build as an MVP within a
+few weeks.
 
-For each prototype give:
-- Title and one-sentence pitch
-- Interference channel(s) exploited (refer to Agent 1's names)
-- Hypothesis, with the expected sign of direct, spillover, and total effects
-- Treatment: what changes for whom (lever, product, message, timing)
-- Unit of randomization and cluster definition; how clusters are constructed from data
-  the company plausibly has; what to do about contamination across clusters
-- Design: e.g. two-arm cluster RCT, randomized saturation, individual-vs-cluster
-  comparison arms to detect interference, switchback, graph-cluster randomization
-- Estimands and estimator (direct, indirect/spillover, total), and the variance method
-- Primary and guardrail metrics across engagement, revenue, retention
-- Power sketch: number of clusters needed, rough intra-cluster correlation assumption,
-  test duration; state the assumptions explicitly
-- MVP build plan: data, pipelines, and product changes required
-- Expected value if it works, and the main way it could fail
-- Grounding: which industry precedent or paper from Agent 2 supports it
+Card format:
+### P<n>. <Title>
+- **Pitch:** one sentence
+- **Type:** cluster-level treatment, or measurement design
+- **Channel(s):** Agent 1's channel names
+- **Treatment:** what changes, for whom, through which lever
+- **Cluster / unit of randomization:** and how it would be built from data the company plausibly has
+- **Why cluster beats individual here:** the mechanism, with the expected sign of direct, spillover and total effects
+- **Outcomes moved:** engagement / revenue / retention
+- **Main risk:** the most likely reason it fails or is not worth building
+- **Grounding:** the precedent or paper from Agent 2 it rests on
 """
 
 AGENT4_CRITIC = SHARED_CONTEXT + """
 ## Your role: Agent 4, critic and ranker
 
-Input: everything produced by Agents 1-3.
+Input: everything produced by Agents 1-3. Agent 3's output is a set of short idea cards.
 
 You are a skeptical senior experimentation scientist with production experience. Your job
 is to find what is wrong, not to be agreeable.
 
 1. Audit the earlier stages: flag prices, facts, or citations that look wrong or invented.
-   Use web search to spot-check the citations that the prototypes depend on, and the prices.
-2. Critique each prototype on:
+   Use web search to spot-check the prices and the citations the cards depend on.
+2. Critique each card briefly on:
    - Is the interference real and material, or speculative?
-   - Methodological validity: identification, estimand clarity, cluster construction,
-     contamination, interference across clusters, multiple testing, novelty effects,
-     power (is the cluster count realistic for this company?)
-   - Production feasibility: data availability, engineering cost, latency, privacy and
-     legal constraints (e.g. inferring households, email/push consent), brand risk
+   - Methodological validity: can the effect be identified at all, is the cluster
+     construction sound, contamination and interference across clusters, and is the
+     number of clusters this company plausibly has enough for power?
+   - Production feasibility: data availability, engineering cost, privacy and legal
+     constraints (e.g. inferring households, email/push consent), brand risk
    - Business value: size of the prize on engagement, revenue, retention
    - Anything that does not make sense, stated plainly
-3. Score each prototype 1-5 on: materiality of interference, methodological soundness,
+3. Score each card 1-5 on: materiality of interference, methodological soundness,
    feasibility, expected business value, and learning value. Give a weighted total
    (weights 0.25, 0.25, 0.2, 0.2, 0.1) and show the table.
-4. Final ranking with a short justification per item, the specific changes that would
-   fix the top prototypes, and which ones to drop.
-5. List the open questions a human must resolve before building anything.
+4. Final ranking with a short justification per card. Say which cards to drop and which
+   to merge.
+5. SELECT 2-3 prototypes for Agent 5 to develop into full plans (a merged prototype counts
+   as one). For each selected prototype give a brief for Agent 5: the scope, the arms, the
+   required fixes, the constraints to respect, and the facts that are still unverified.
+6. List the open questions a human must resolve before building anything.
+"""
+
+AGENT5_PLANS = SHARED_CONTEXT + """
+## Your role: Agent 5, full experiment plans
+
+Input: everything produced by Agents 1-4. Agent 4 selected 2-3 prototypes and wrote a brief
+for each. Write a full plan for each selected prototype ONLY, applying every fix and
+constraint in Agent 4's brief. Do not revive dropped ideas.
+
+For each plan give:
+- Title, one-sentence pitch, and the cards it came from
+- Hypothesis, with the expected sign of direct, spillover, and total effects
+- Treatment arms: exactly what each arm receives (lever, product, message, timing)
+- Unit of randomization and cluster definition; how clusters are built from data the company
+  plausibly has; eligibility and exclusions; what to do about contamination across clusters
+- Design: e.g. cluster RCT, randomized saturation, individual-vs-cluster arms to detect
+  interference, switchback
+- Estimands (direct, indirect/spillover, total) and the estimator, with the variance method
+- Primary, secondary, and guardrail metrics across engagement, revenue, retention, and the
+  read-out time
+- Power: write the formula, every assumed input (baseline rate, variance, intra-cluster
+  correlation, cluster size, minimum detectable effect), and the arithmetic step by step, so a
+  reader can check it. Label every assumed input as an assumption.
+- MVP build plan: data, pipelines, and product changes, in build order
+- Decision rule: what result leads to rollout, iteration, or stopping
+- Risks, and the unverified facts that must be checked before launch
 """

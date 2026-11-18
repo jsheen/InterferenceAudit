@@ -1,0 +1,5 @@
+the new york times has the products of: individual account until hitting paywall, individual subscription to news, games, wirecutter, cooking, and the athletic (look up amounts), as well as a family all access plan where 4 people can be on the same plan (i think it is $30 but look up amount), a family game plan (4 people, i think $10). the mechanisms they can get people to go further down the pipeline are email nudges, notifications in the app, better algorithmic recommendations on the home page, push notifications, and personalized paywall
+
+one good example is nudging people on the games all access to become family all access
+
+it should be from family games to family all access the point being we are applying a treatment at cluster level
