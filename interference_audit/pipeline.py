@@ -10,6 +10,7 @@ Stages (each one is a Claude call; outputs are saved as Markdown):
 Usage:
   python -m interference_audit.pipeline inputs/nyt.md
   python -m interference_audit.pipeline inputs/nyt.md --run-dir runs/20261118-1200   # resume
+  python -m interference_audit.pipeline inputs/nyt.md --ideas my_ideas.md            # add your own ideas
 """
 
 from __future__ import annotations
@@ -132,8 +133,13 @@ def run_agent_claude_code(stage: Stage, user_content: str) -> tuple[str, list[tu
     return (data.get("result") or "").strip(), []
 
 
-def build_input(stage: Stage, description: str, prior: dict[str, str]) -> str:
+IDEA_STAGES = ("04_critique", "05_plans")  # user ideas skip the idea generator and go straight to these
+
+
+def build_input(stage: Stage, description: str, prior: dict[str, str], ideas: str | None = None) -> str:
     parts = [f"<company_description>\n{description.strip()}\n</company_description>"]
+    if ideas and stage.key in IDEA_STAGES:
+        parts.append(f"<user_ideas>\n{ideas.strip()}\n</user_ideas>")
     for earlier in STAGES:
         if earlier.key in prior:
             parts.append(f'<stage name="{earlier.title}">\n{prior[earlier.key]}\n</stage>')
@@ -149,6 +155,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("description", type=Path, help="Text/Markdown file describing products and levers")
     ap.add_argument("--run-dir", type=Path, help="Existing run directory to resume (finished stages are skipped)")
+    ap.add_argument("--ideas", type=Path,
+                    help="Text/Markdown file of your own prototype ideas, fed directly to Agents 4 and 5")
     ap.add_argument(
         "--backend", choices=["auto", "api", "claude-code"], default="auto",
         help="api = Anthropic API key (billed per token); claude-code = `claude -p` on your Claude subscription; "
@@ -167,6 +175,9 @@ def main() -> None:
     run_dir = args.run_dir or Path("runs") / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "00_input.md").write_text(description)
+    ideas = args.ideas.read_text() if args.ideas else None
+    if ideas:
+        (run_dir / "00_ideas.md").write_text(ideas)
 
     client = anthropic.Anthropic() if backend == "api" else None
     outputs: dict[str, str] = {}
@@ -178,7 +189,7 @@ def main() -> None:
             outputs[stage.key] = out_path.read_text()
             continue
         print(f"[run]  {stage.title}", file=sys.stderr)
-        prompt = build_input(stage, description, outputs)
+        prompt = build_input(stage, description, outputs, ideas)
         if backend == "api":
             text, sources = run_agent(client, stage, prompt)
         else:
@@ -189,6 +200,8 @@ def main() -> None:
         outputs[stage.key] = text
 
     report = [f"# Interference audit\n\nInput: `{args.description}`  \nModel: `{MODEL}`\n"]
+    if ideas:
+        report.append(f"\n\n# User ideas (fed to Agents 4 and 5)\n\n{ideas.strip()}")
     report += [f"\n\n# {s.title}\n\n{outputs[s.key]}" for s in STAGES]
     (run_dir / "report.md").write_text("".join(report))
     print(f"Done. Report: {run_dir / 'report.md'}", file=sys.stderr)

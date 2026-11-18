@@ -31,6 +31,14 @@ Steps:
 1. Use web search to verify current list prices for every product and plan mentioned
    (intro and regular prices, billing period, number of seats on group/family plans).
    Correct the description where it is wrong. Produce a price table with a source URL per row.
+   Then read the company's OWN help center, FAQ, or terms pages for its group/family plans,
+   and fetch any such pages the description links to. Press coverage and third-party sites
+   are often imprecise about how plans work. From the company's own pages, establish the plan
+   mechanics, quoting the source: who can invite, remove, pay for, upgrade, or cancel (owner
+   vs. members); how invites are sent; seat limits; what existing subscribers (including
+   app-store-billed ones) must do to join or upgrade; and any other multi-person structures
+   (e.g. bonus or gift subscriptions). These mechanics decide which units can actually be
+   treated, so get them right before mapping interference.
 2. Map the units: individual anonymous visitors, registered users, subscribers, plan
    members (group/family seats), households/devices, social ties (sharing, gifting,
    leaderboards), geographies, and any shared resources (model training data, send
@@ -137,6 +145,14 @@ is to find what is wrong, not to be agreeable.
    as one). For each selected prototype give a brief for Agent 5: the scope, the arms, the
    required fixes, the constraints to respect, and the facts that are still unverified.
 6. List the open questions a human must resolve before building anything.
+
+If the input contains <user_ideas>, the user has proposed ideas directly. Label them U1, U2, ...
+and treat each as an extra card: restate it as a card, audit it, critique it, score it, and
+rank it alongside Agent 3's cards with the same rubric. Do not go easy on it because the user
+proposed it. Then ALWAYS select each user idea for a full plan, in addition to the 2-3 you
+select from Agent 3's cards, and write its brief, fixing or reshaping it as needed. You may
+merge a user idea with a card that targets the same thing. The one exception: if a user idea
+is fundamentally unsound or unbuildable, do not select it, and say plainly why.
 """
 
 AGENT5_PLANS = SHARED_CONTEXT + """

@@ -10,6 +10,7 @@ Five agents run in sequence. Each one sees the original description and the outp
 
 ### Agent 1: Interference mapper (web search, up to 6)
 - Looks up current prices for every product and plan, with a source for each, and corrects the description where it is wrong.
+- Reads the company's own help center, FAQ or terms pages for how group and family plans work (who can invite, pay, upgrade or cancel), because press coverage often gets this wrong.
 - Maps the units: free accounts, subscribers, plan members, households, sharing ties, and shared resources such as the recommendation model and email-sending reputation.
 - Builds a table of which levers move which outcomes (engagement, revenue, retention).
 - Lists the interference channels. For each: how one unit's treatment reaches another, the natural cluster, which way a naive individual-level A/B test is biased, how material it is, and whether treating the whole cluster could create extra value.
@@ -29,6 +30,7 @@ Five agents run in sequence. Each one sees the original description and the outp
 - Critiques each card: is the interference real, is the method sound, are there enough clusters for power, can it be built, are there privacy or legal problems, and how much is it worth.
 - Scores each card on five weighted criteria, ranks them, and says which to drop or merge.
 - Selects the top 2-3 and writes a brief for each (scope, arms, required fixes, constraints, unverified facts), plus the open questions a human must answer.
+- If you pass your own ideas with `--ideas`, it critiques and scores them with the same rubric as Agent 3's cards. It always selects them for a full plan unless it judges an idea fundamentally unsound, in which case it says why.
 
 ### Agent 5: Plan writer (no web)
 - Writes a full experiment plan for each prototype Agent 4 selected, applying Agent 4's fixes:
@@ -59,10 +61,22 @@ By default it runs each agent through Claude Code (`claude -p`), which uses your
 
 Results go to `runs/<timestamp>/` (each stage, plus `report.md` with all five). If a run stops partway, pass `--run-dir runs/<timestamp>` to resume. Stages that already finished are skipped, and you can delete a stage's file to rerun only that stage. Prompts are in `interference_audit/prompts.py`.
 
+### Feeding your own ideas directly into Agent 4
+
+If you already have a prototype idea, put it in a text or Markdown file and pass it with `--ideas`. It skips Agent 3 and goes straight to Agent 4, which critiques it alongside Agent 3's cards, then to Agent 5, which writes the full plan.
+
+```bash
+.venv/bin/python -m interference_audit.pipeline inputs/nyt.md --ideas inputs/nyt_idea_111826.md
+```
+
+To try an idea without rerunning the research, start a new run directory, copy `01_interference.md`, `02_research.md` and `03_cards.md` from an earlier run into it, and pass `--run-dir`. Only Agents 4 and 5 will run, which takes about 8-10 minutes.
+
 
 ## Example: The New York Times
 
 Output from a full run: [`examples/nyt/`](examples/nyt/). The final plans are in [`05_plans.md`](examples/nyt/05_plans.md), Agent 4's ranking is in [`04_critique.md`](examples/nyt/04_critique.md), and everything is combined in [`report.md`](examples/nyt/report.md). Prices and other facts in it are as the agents found them on 2026-11-18. Check what is marked unverified before relying on it.
+
+A second run fed the user idea in [`inputs/nyt_idea_111826.md`](inputs/nyt_idea_111826.md) (fill the empty seats on Family All Access plans with 2 or 3 members) directly to Agents 4 and 5, reusing the first run's Agents 1-3: [`examples/nyt_idea_111826/`](examples/nyt_idea_111826/). Its plan for the idea is Plan 3 in [`05_plans.md`](examples/nyt_idea_111826/05_plans.md). Agents 4 and 5 took 2 min 54 s and about 8 min. Both examples predate Agent 1 reading the company's help center, so their Agents 1-3 still say any member can invite; Agent 4 corrects this.
 
 ### Run time
 
@@ -114,4 +128,13 @@ Engagement, revenue, and retention.
 
 ## Example of the kind of opportunity we're looking for
 Nudging a Family Games plan (up to 4 members) to upgrade to Family All Access. The point is that the treatment is applied at the cluster level: the whole plan is treated together, rather than nudging members one at a time, since the upgrade decision and its payoff are shared across the plan.
+
+## Plan rules (from NYT's own help center; Agent 1 should read this page)
+Source: https://thenewyorktimeshelpcenter.helpjuice.com/115002788207-Subscriptions/family-subscription (checked 2026-11-18)
+- Only the primary subscriber can manage the family subscription: invites, billing, and cancellation. Other members can manage only their own account information.
+- The plan gives access to up to three additional subscribers. The primary invites them by email or by sending an invitation link.
+- The primary removes a member with "Revoke".
+- Existing subscribers can upgrade in their account. Anyone billed through a third party (App Store, Google) must cancel there before buying a family subscription.
+- Home Delivery and some All Access subscriptions can add extra people as "Bonus subscriptions", managed the same way as family subscriptions.
+- The page does not say whether members must live together, or who is eligible for intro pricing.
 ```
