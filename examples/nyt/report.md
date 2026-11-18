@@ -2,82 +2,93 @@
 
 Model: `claude-opus-5-5`. Input: [`00_input.md`](00_input.md)
 
-## Bottom line
+## Plan 1: Plan-level upgrade, owner offer × member request
 
-- **Build Plan A (owner offer + member "Request All Access" button) and Plan B (plan challenge + interference detector) first, in parallel.** Randomize them independently. Run Plan C (whole-plan trial) only after A's 8-week read.
-- **Why these:** in each one the plan is the unit that pays, uses and cancels. A goes after the +$20–24 per 4 weeks per upgraded plan (prices unverified; $34 comes from a single unconfirmed source). B tests directly whether NYT's member-level tests are biased.
-- **First, the pre-launch checklist** (prices, intro eligibility, base size, randomization unit). It blocks all three plans.
-- **Biggest caveat:** no one knows how many Games Family plans exist. A needs about 51k eligible plans and B about 82.7k family plans. Both figures rest on assumed baselines. Also, if owners get the $8 intro price, year-1 revenue from upgrades turns **negative**.
+- **Idea:** Move Games Family plans to All Access Family by pairing an offer to the owner with a "Request All Access for our plan" button that members choose to use. The whole plan is treated in one 7-day window. This merges cards P1 and P3.
+- **Outcomes promoted:** Revenue, engagement and retention.
+  - **Primary outcome: revenue.** It is measured as the 8-week plan upgrade.
+  - Engagement on unlocked products and the plan cancellation hazard are secondary.
+- **Mechanism:**
+  - Owners get email and in-app offers (3 touches).
+  - Members get an opt-in push, an in-app card, and a paywall request button that runs for 8 weeks.
+  - Owners receive request digests, capped at 1 per week and 3 in total.
+  - Nothing about members' behaviour is reported passively.
+  - **Cluster randomized:** plan_id, hashed and frozen at entry.
+- **Why cluster-level:**
+  - The member who wants the product and the owner who pays are different people.
+  - An upgrade spills onto every seat, so member-level tests would understate the effect.
+- **Design:**
+  - Stratified arms: holdout, owner-only offer, coordinated (owner plus members), and an optional dose-matched owner arm.
+  - Each policy's effect is compared with the holdout at the plan level.
+  - Net revenue counts all standalone subscriptions in the cluster (the P6 rule).
+- **Size needed:**
+  - 17,000 plans per arm: 51k for 3 arms, 68k for 4.
+  - This rests on an **assumed** 2% baseline upgrade rate and an **assumed** +0.5 pp minimum detectable effect.
+  - The plan does not say the size is realistic. The eligible base is **unverified**, so it pre-registers fallbacks down to two arms or rolling enrolment.
+  - It notes the build is justified only at portfolio scale or through the retention secondary.
+- **Caveats:**
+  - Prices and billing cycle are **unverified**. If owners get the $8 intro price, year-1 revenue turns negative.
+  - Owners billed through Apple or Google face upgrade friction.
+  - Paywall-hit volume per member is unknown, owners may feel nagged, and minors and consent need counsel sign-off.
+  - Members' existing standalone subscriptions may be cannibalized.
 
-## By outcome
+## Plan 2: Plan challenge and idle-seat reactivation, with built-in interference detector
 
-### Engagement
-- **Levers:** push, in-app cards and idle-seat email (B); member in-app cards and push (A); time-boxed entitlement trials with in-app notes (C). No selected plan uses home-page recommendations.
-- **Cluster:** plan_id in all three.
-- **Why cluster beats individual:**
-  - Shared leaderboards make play complementary across seats.
-  - An upgrade unlocks products for members who were never messaged.
-  - Member-level randomization therefore leaks positive spillover into control and **understates** the effect.
-- **Role in the plans:** no plan has engagement as its primary outcome. It is B's leading and detector metric, and a secondary in A and C (C uses post-trial engagement only).
-- **Measurable:** yes. B's MDE is about 0.054 plays/week per seat, and a detectable bias is about 0.068 plays/week (σ, ρ and seats per plan are assumptions).
+- **Idea:** A weekly synchronized "plan challenge" plus nudges to idle seats, to reduce whole-plan cancellation. Half the plans are randomized by member, which tests whether member-level tests are biased. This merges cards P4 and P7.
+- **Outcomes promoted:** Retention, engagement and revenue.
+  - **Primary outcome: retention**, measured as the plan cancellation hazard over 26 weeks.
+  - Engagement is the leading metric and net revenue is secondary.
+- **Mechanism:**
+  - A weekly push and an in-app card link every treated seat to the existing plan leaderboard.
+  - Seats idle for 14 days or more get an extra push or email, sent from a dedicated sending pool.
+  - Covers all family plans (Games Family and All Access Family).
+  - **Randomized:** plan_id in one half, user_id in the other.
+- **Why cluster-level:**
+  - Leaderboard rivalry makes play complementary across seats.
+  - Churn is a plan event, so per-member retention is mis-specified.
+- **Design:**
+  - Plans are split into a plan-randomized half and a member-randomized half.
+  - The plan-randomized half has three saturation arms: control, idle seat only, all seats.
+  - A Hausman-style test compares the two halves' estimates.
+- **Size needed:**
+  - 18.6k plans per arm, about 82.7k plans in total.
+  - The idle-only arm (about 4.1k) is not confirmatory.
+  - The baseline churn (8%) and idle share are **assumptions**, and the base is **unverified**.
+  - Engagement is "easily powered". Fallbacks need sign-off.
+- **Caveats:**
+  - High baseline retention may compress the effect.
+  - Push opt-in may be low, and the plan interacts with Plan 1 on shared frequency caps.
+  - Leaderboards on Games Family are **unverified**.
+  - Within-plan user hashing is **unverified**.
 
-### Retention
-- **Levers:** synchronized weekly push and in-app challenge, plus idle-seat nudges (B).
-- **Cluster:** plan_id.
-- **Why cluster beats individual:** churn is a plan event. The owner may cancel when other seats go idle, so per-member retention is mis-specified.
-- **Role in the plans:**
-  - B: primary outcome, 26-week plan cancellation hazard.
-  - A: secondary and guardrail.
-  - C: co-primary non-inferiority test for the drop in access when the trial ends.
-- **Measurable, but expensive:** about 18.6k plans per arm (Schoenfeld). This assumes 8% baseline churn and a −0.8 pp effect. High baseline retention may compress the effect.
+## Plan 3: Whole-plan All Access trial (second wave)
 
-### Revenue
-- **Levers:**
-  - A: owner email and in-app offer, a member paywall request button, and a capped request digest to the owner.
-  - C: plan-wide trial followed by an owner offer.
-- **Cluster:** plan_id. Net revenue R_p counts every person in the plan cluster across all billing channels (the P6 rule).
-- **Why cluster beats individual:**
-  - The member who wants the product is not the owner who pays.
-  - Member-level tests upgrade control members, and owner-only tests miss member demand. Both **understate** the effect.
-  - Revenue measured on the owner alone **overstates** net gains, because it misses cancelled standalone or invitee subscriptions.
-- **Role in the plans:** the primary outcome in A and C is plan upgrade. Net R_p is a secondary and a condition in the decision rule.
-- **Measurable:** the upgrade outcome, at roughly 17k plans per arm for A (p₀ = 2% assumed) and about 6k per arm for C.
-  - Revenue at that scale is small: about $22k–27k/yr per 17k plans at regular price, or −$1.4k to −$2.2k in year 1 under the intro price (inference).
+- **Idea:** Unlock All Access for every seat of a Games Family plan for 21 days (an **assumed** length), then offer the owner the upgrade. This comes from card P2.
+- **Outcomes promoted:** Revenue, retention and engagement.
+  - **Primary outcome: revenue**, measured as upgrade within 28 days after the trial.
+  - Cancellation non-inferiority is co-primary, and post-trial engagement is secondary.
+- **Mechanism:**
+  - A temporary entitlement grant with in-app notes to seats.
+  - The owner offer from Plan 1 follows at day 21.
+  - **Randomized:** plan_id. It is mutually exclusive with Plan 1 and launches after Plan 1's primary read.
+- **Why cluster-level:**
+  - The owner pays based on what the whole plan uses.
+  - A trial for one seat builds habit in someone who may not be the payer.
+- **Design:**
+  - Three arms: no trial, most-active seat only, all seats.
+  - The comparison of all seats against one seat gives the cluster increment.
+- **Size needed:**
+  - About 6,024 plans per arm (18.1k in total), based on **assumed** conversion rates.
+  - Supply is 70% of Plan 1's holdout (about 11.9k) plus about 6.2k new plans. Growth of the base is **unverified**.
+  - The fallback is rolling enrolment, or testing all seats against no trial only.
+- **Caveats:**
+  - Losing access when the trial ends may raise cancellation.
+  - The interaction with intro-price eligibility is **unverified**.
+  - Rights for non-owned content are **unverified**.
+  - Reusing Plan 1's holdout weakens Plan 1's long-run read.
+  - If the owner dominates usage, the one-seat arm is effectively an owner-only trial.
 
-## Selected plans
-
-| Plan | Primary outcome | Lever(s) | Cluster | Size needed | Key risk |
-|---|---|---|---|---|---|
-| A: Owner offer × member request (P1+P3) | Plan upgrade, 8 wk | Email, in-app, push (opt-in), paywall request button | Games Family plan_id (≥2 seats) | 17k/arm: 51k (3 arms), 68k (4 arms); fallbacks below 27.6k | Intro-price eligibility flips year-1 revenue; base size unknown |
-| B: Plan challenge + idle-seat + detector (P4+P7) | Plan cancellation hazard, 26 wk | Push, in-app card, email (separate sending pool) | All family plan_ids; half randomized by plan, half by member | 18.6k/arm; 41.3k plan half + 41.3k member half = 82.7k | High baseline retention; low push opt-in; within-plan user hashing unverified |
-| C: Whole-plan trial (P2), second wave | Upgrade 28 days post-trial; co-primary: cancellation non-inferiority | Temporary All Access entitlement, in-app notes, owner offer | Games Family plan_id | 6,024/arm, about 18.1k total | Churn when access ends; reuse of A's holdout |
-
-## Ranking
-
-No user-proposed ideas (U1, U2, …) appear in the critique. P1 builds on the company's own example (Games Family → All Access Family).
-
-- P1 Coordinated upgrade push: 3.75, **merged → A**
-- P7 Interference detector: 3.65, **merged → B**
-- P4 Plan challenge / idle seats: 3.55, **merged → B**
-- P2 Whole-plan trial: 3.45, **kept → C (second wave)**
-- P3 "Ask the plan owner": 3.35, **merged → A**
-- P6 Steer invites: 3.25, **dropped as a treatment** (its accounting rule is kept in all plans)
-- P5 Household second-person offer: 2.05, **dropped** (privacy, likely negative net revenue, high build cost)
-- P8 Geo family offer: 1.95, **dropped** (wrong cluster, too few DMAs)
-
-## Before building
-
-1. **Live prices and billing cycle:** is All Access Family $30 or $34, and is Games Family billed monthly or every 4 weeks? Can existing Games Family owners get the $8 intro? Together these set the sign of year-1 revenue.
-2. **Base size and baselines:** number of Games Family and All Access Family plans, seat distribution, 8-week upgrade rate, and 26-week cancellation rate. All current sizing figures are assumptions.
-3. **Experimentation platform:** what unit does NYT randomize on today, and can it hash on plan_id and on user_id within a plan? If tests are already plan-hashed, B's detector shrinks to a pilot.
-4. **Feasibility:**
-   - Is there an upgrade path for owners billed through Apple or Google?
-   - What happens to members' standalone subscriptions when they upgrade?
-   - Can a person be on two plans?
-   - Do Games Family plans have leaderboards?
-5. **Sign-off:**
-   - Counsel on member-to-owner requests, minors and consent.
-   - Leadership agreement to judge results on seats with access and net R_p rather than reported subscribers (a plan counts as 2 regardless of seats).
+**Not planned:** P5 (household paywall → family offer, dropped); P8 (geo family offer, dropped); P6 (invite steering, parked, with its accounting rule folded into all plans).
 
 ---
 
